@@ -1,0 +1,545 @@
+/*
+1. GENEL
+2. HEADER
+3. BANNER
+4. HAKKIMDA
+5. HIZMETLER
+6. MUSTERILER
+7. REFERANSLAR
+8. ILETİŞİM
+9. FOOTER
+*/
+
+/* GENEL */
+:root {
+  --renk1: rgb(134, 1, 116);
+  --renk2: rgba(134, 1, 116, 0.849);
+  --renk3: rgb(144, 144, 144);
+  --renk4: rgb(211, 211, 211);
+  --renk5: rgb(37, 37, 37);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Nunito;
+  font-size: 1rem;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+.btn,
+button {
+  background-color: rgba(0, 0, 0, 0.582);
+  color: white;
+  border: 1px solid white;
+  border-radius: 3rem;
+  padding: 1rem 2rem;
+  font-weight: 700;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.btn:hover,
+button:hover {
+  background-color: var(--renk2);
+}
+
+textarea,
+input {
+  width: 100%;
+  border: 1px solid var(--renk3);
+  border-radius: 1rem;
+  padding: 1rem;
+  outline: 0;
+}
+
+.bolum-basligi {
+  padding: 2rem 0;
+}
+
+.bolum-basligi h2::before {
+  content: "\f789";
+  display: block;
+  font-family: "Font Awesome 5 Brands";
+  font-weight: 400;
+  font-size: 3rem;
+  color: var(--renk1);
+}
+
+.bolum-basligi h2 {
+  font-size: 2rem;
+  letter-spacing: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .bolum-basligi h2 {
+    font-size: 1.2rem;
+  }
+}
+
+.bolum-basligi p {
+  color: var(--renk3);
+}
+
+.sosyal-medya a {
+  background-color: white;
+  border: 1px solid var(--renk3);
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  display: inline-block;
+  font-size: 1.5rem;
+  position: relative;
+  margin-right: 1rem;
+}
+
+.sosyal-medya i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: black;
+}
+
+.ust-buton {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  display: inline-block;
+  padding: 1rem;
+  background-color: var(--renk2);
+  color: white;
+}
+
+.buton-dark-mode {
+  position: fixed;
+  bottom: 5rem;
+  right: 1rem;
+  display: inline-block;
+  padding: 1rem;
+  background-color: var(--renk2);
+  color: white;
+}
+
+.anahtar-dark-mode {
+  display: none;
+}
+
+.anahtar-dark-mode:checked ~ * {
+  background-color: black;
+  color: white;
+}
+
+.anahtar-dark-mode:checked ~ main section.musteriler,
+.anahtar-dark-mode:checked ~ main section.iletisim {
+  background-color: rgb(34, 34, 34);
+  color: white;
+}
+
+.anahtar-dark-mode:checked ~ header {
+  background-color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+}
+
+.anahtar-dark-mode:checked ~ .ust-buton,
+.anahtar-dark-mode:checked ~ .buton-dark-mode {
+  background-color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+}
+
+/* GENEL */
+
+/* HEADER */
+header {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 999;
+}
+
+header nav {
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1rem;
+  background-color: white;
+}
+
+header .logo {
+  padding: 1rem;
+  display: inline-block;
+  background-color: white;
+  width: 100%;
+}
+
+header nav ul {
+  display: flex;
+  list-style-type: none;
+}
+
+@media (max-width: 768px) {
+  header nav > ul {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    background-color: var(--renk4);
+    width: 100%;
+    padding: 7rem 1rem 2rem 1rem;
+    z-index: -1;
+    transform: translateY(-100%);
+    transition: transform 0.5s;
+  }
+}
+
+header nav ul li {
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  header nav ul li {
+    line-height: 2rem;
+  }
+}
+
+header nav ul li a {
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  color: black;
+  transition: all 0.5s;
+}
+
+header nav ul i {
+  color: var(--renk1);
+}
+
+header nav ul li a:hover i,
+header nav ul li a:hover {
+  background-color: var(--renk2);
+  color: white;
+  border-radius: 1rem;
+}
+
+header nav ul li ul {
+  display: none;
+  background-color: white;
+  border-radius: 0.5rem;
+  position: absolute;
+  top: 1rem;
+  padding: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  header nav ul li ul {
+    display: block;
+    position: static;
+    background: none;
+    margin-left: 1rem;
+  }
+}
+
+header nav ul li ul li {
+  line-height: 2rem;
+}
+
+header nav ul li:hover ul {
+  display: block;
+}
+
+.anahtar-menu {
+  display: none;
+}
+
+.anahtar-menu:checked + ul {
+  transform: translateY(0);
+}
+
+.buton-menu {
+  display: none;
+  font-size: 2rem;
+}
+@media (max-width: 768px) {
+  .buton-menu {
+    display: inline;
+  }
+}
+
+/* HEADER */
+
+/* BANNER */
+section.banner {
+  background-image: url("../img/header-bg.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+  height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+section.banner::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+section.banner .yazilar {
+  z-index: 3;
+  text-align: center;
+  color: white;
+}
+
+section.banner .yazilar .hosgeldiniz {
+  font-size: 1.3rem;
+}
+
+section.banner .yazilar h1 {
+  font-size: 3rem;
+}
+
+section.banner .yazilar h2 {
+  font-size: 1.2rem;
+  font-weight: 100;
+}
+
+section.banner a {
+  color: white;
+}
+
+section.banner a.btn {
+  margin-top: 1rem;
+}
+
+section.banner .mouse {
+  margin-top: 2rem;
+}
+
+section.banner button {
+  margin-top: 2rem;
+}
+/* BANNER */
+
+/* MAIN */
+main section {
+  padding: 4rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  main section {
+    padding: 1rem;
+  }
+}
+/* MAIN */
+
+/* HAKKIMDA */
+section.hakkimda .yazilar {
+  padding-left: 2rem;
+  text-align: left;
+}
+
+section.hakkimda .yazilar h2 {
+  font-size: 2rem;
+}
+
+section.hakkimda .yazilar h4 {
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+section.hakkimda .yazilar i {
+  color: var(--renk1);
+}
+
+section.hakkimda .yazilar p {
+  color: var(--renk3);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* HAKKIMDA */
+
+/* HİZMETLER */
+section.hizmetlerimiz .card {
+  border: 1px solid var(--renk3);
+  border-radius: 1rem;
+  padding: 1rem;
+  margin: 1rem;
+}
+
+section.hizmetlerimiz .card i {
+  font-size: 3rem;
+  color: var(--renk3);
+}
+
+section.hizmetlerimiz .card h3 {
+  font-size: 1.3rem;
+  margin: 1rem 0;
+}
+
+section.hizmetlerimiz .card h3::after {
+  content: "";
+  display: block;
+  border-bottom: 3px solid var(--renk1);
+  width: 3rem;
+  margin: 0.5rem auto;
+}
+
+section.hizmetlerimiz .card p {
+  color: var(--renk3);
+}
+/* HİZMETLER */
+
+/* MUŞTERİLER */
+section.musteriler {
+  background-color: var(--renk4);
+}
+
+section.musteriler .musteri img {
+  border-radius: 50%;
+}
+
+section.musteriler .musteri blockquote {
+  margin-top: 1rem;
+}
+
+/* MUŞTERİLER */
+
+/* REFERANSLAR */
+section.referanslar nav {
+  margin-bottom: 2rem;
+}
+
+section.referanslar nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  list-style-type: none;
+}
+
+@media (max-width: 576px) {
+  section.referanslar nav ul li {
+    margin-bottom: 2rem;
+  }
+}
+
+section.referanslar nav ul li a {
+  padding: 0.5rem 1rem;
+  color: var(--renk1);
+  text-decoration: none;
+  border-radius: 2rem;
+}
+
+section.referanslar nav ul li a.aktif {
+  background-color: var(--renk1);
+  color: white;
+}
+
+section.referanslar .card {
+  margin: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+section.referanslar .card::before {
+  content: "";
+  transition: background-color 0.5s;
+}
+
+section.referanslar .card:hover::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.801);
+  border-radius: 2rem;
+}
+
+section.referanslar .card img {
+  border-radius: 2rem;
+}
+
+section.referanslar .card h3 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 700%);
+  color: white;
+  transition: transform 0.5s;
+}
+
+section.referanslar .card:hover h3 {
+  transform: translate(-50%, -50%);
+}
+
+/* REFERANSLAR */
+
+/* İLETİŞİM */
+section.iletisim {
+  background-color: var(--renk4);
+}
+
+section.iletisim i {
+  background-color: var(--renk4);
+  font-size: 2rem;
+  color: var(--renk1);
+  margin-bottom: 1rem;
+}
+
+section.iletisim h5 {
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+section.iletisim a {
+  color: var(--renk3);
+  text-decoration: none;
+}
+
+section.iletisim form {
+  width: 80%;
+  margin: 2rem auto;
+}
+
+@media (max-width: 768px) {
+  section.iletisim form {
+    width: 100%;
+  }
+}
+
+section.iletisim textarea,
+section.iletisim input {
+  margin: 0.5rem;
+}
+
+/* İLETİŞİM */
+
+/* FOOTER */
+footer {
+  background-color: var(--renk5);
+  padding: 4rem;
+  text-align: center;
+}
+
+footer .copyright {
+  color: white;
+  padding: 1rem;
+}
+/* FOOTER */
