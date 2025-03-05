@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  This template creates EC2 instance with security group.
+  
+Parameters:
+  KeyName:
+    Description: Key bilgisi giriniz...
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: insbekir
+  
+Resources:
+  MYSECGRP:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable ssh and http
+      GroupName: "cfn-secgrp"
+      SecurityGroupIngress: 
+        - CidrIp: 0.0.0.0/0
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+
+  MYINSTANCE:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0e9107ed11be76fde
+      InstanceType: t2.micro
+      KeyName: !Ref KeyName
+      SecurityGroups: 
+        - !Ref MYSECGRP
+      Tags: 
+        - Key: "Name"
+          Value: "Cloudformation-1"
+      UserData: !Base64 |
+        #! /bin/bash
+        dnf update -y
+        dnf install nginx -y
+        dnf install git -y
+        systemctl start nginx
+        cd /usr/share/nginx/html
+        git clone https://github.com/techproedu/designer.git
+        chmod -R 777 /usr/share/nginx/html
+        rm index.html
+        cp -R ./designer/. .
+        systemctl restart nginx
+        systemctl enable nginx
+  
+Outputs:
+  EC2PUBLICDNS:
+    Description: Ec2 nun dns bilgisi
+    Value: !Sub 
+      - http://${PublicAddress}
+      - PublicAddress: !GetAtt MYINSTANCE.PublicDnsName

@@ -1,0 +1,14 @@
+VS Code Extensions for YAML and Cloudformation:
+
+- CloudFormation Snippets
+  dsteenman.cloudformation-yaml-snippets
+  Danny Steenman
+
+- CloudFormation Linter
+  kddejong.vscode-cfn-lint
+  kddejong
+
+- YAML
+  redhat.vscode-yaml
+  Red Hat
+  

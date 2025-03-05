@@ -1,0 +1,199 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  This YAML is resolving AWS Contact List Project.
+
+Parameters:
+  MyVPC:
+    Description: VPC Id of your existing account
+    Type: AWS::EC2::VPC::Id
+    Default: default
+
+  KeyName:
+    Description: Please enter your Key pair
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: insbekir
+
+  Subnets:
+    Description: Please select your all subnets used by ALB
+    Type: List<AWS::EC2::Subnet::Id>
+
+  DBSubnets:
+    Description: Please select your two subnets used by RDSDB
+    Type: List<AWS::EC2::Subnet::Id>
+
+  HostedId:
+    Description: Select your hostedid.
+    Type: AWS::Route53::HostedZone::Id
+
+  ContactDomainName:
+    Description: Full domain name for the App. ex. contact.techprodevops.com
+    Type: String
+    AllowedPattern: (?!-)[a-zA-Z0-9-.]{1,63}(?<!-) 
+
+  
+Resources:
+
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP for Application
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref MyVPC
+
+
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP for Application
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !GetAtt ALBSecurityGroup.GroupId
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref MyVPC
+
+
+  MyDBSecurityGroup:
+      Type: AWS::RDS::DBSecurityGroup
+      Properties:
+        DBSecurityGroupIngress: # Required
+          - EC2SecurityGroupId: !GetAtt EC2SecurityGroup.GroupId
+        GroupDescription: Back-end Database # Required
+
+
+  WebServerLT:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        ImageId: ami-0cff7528ff583bf9a
+        InstanceType: t2.micro
+        KeyName: !Ref KeyName
+        SecurityGroupIds:
+          - !GetAtt EC2SecurityGroup.GroupId
+        TagSpecifications:
+          - ResourceType: instance
+            Tags: 
+              - Key: Name
+                Value: !Sub Web Server of ${AWS::StackName} Stack
+        UserData: 
+          Fn::Base64:
+            !Sub 
+              - |
+                #! /bin/bash
+                yum update -y
+                yum install python3 -y
+                yum install git -y
+                pip3 install flask
+                pip3 install flask_mysql
+                echo "${MyDBURI}" > /home/ec2-user/dbserver.endpoint
+                cd /home/ec2-user
+                git clone https://github.com/techpro-aws-devops/Contact-List-Application-B303.git
+                cd Contact-List-Application-B303
+                python3 contact-list-app.py
+              - MyDBURI: !GetAtt MyDatabaseServer.Endpoint.Address
+
+
+  MyDatabaseServer:
+    Type: AWS::RDS::DBInstance
+    Properties: 
+      AllocatedStorage: 20
+      AllowMajorVersionUpgrade: false
+      AutoMinorVersionUpgrade: false
+      BackupRetentionPeriod: 0
+      DBInstanceClass: db.t3.micro
+      DBInstanceIdentifier: contact-list-app
+      DBName: contactlist
+      DBSubnetGroupName: !Ref MyDBSubnetGroup
+      DBSecurityGroups: 
+        - !Ref MyDBSecurityGroup
+      Engine: MySQL
+      EngineVersion: 8.0.40
+      MasterUsername: admin
+      MasterUserPassword: admin12345
+      Port: 3306
+      PubliclyAccessible: true
+
+
+  WebServerASG:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      AvailabilityZones:
+        !GetAZs ""
+      DesiredCapacity: 2
+      HealthCheckGracePeriod: 300
+      HealthCheckType: ELB
+      LaunchTemplate:
+        LaunchTemplateId: !Ref WebServerLT
+        Version: !GetAtt WebServerLT.LatestVersionNumber
+      MaxSize: 3 #required
+      MinSize: 1 #required
+      TargetGroupARNs:
+        - !Ref WebServerTG
+
+
+  MyDBSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: Subnets available for the RDS DB Instance
+      SubnetIds: !Ref DBSubnets
+
+
+  ALBListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions: #required
+        - TargetGroupArn: !Ref WebServerTG
+          Type: forward
+      LoadBalancerArn: !Ref ApplicationLoadBalancer #required
+      Port: 80 #required
+      Protocol: HTTP #required
+
+
+  ApplicationLoadBalancer:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      IpAddressType: ipv4
+      Scheme: internet-facing
+      SecurityGroups:
+        - !GetAtt ALBSecurityGroup.GroupId
+      Subnets: !Ref Subnets
+      Type: application
+
+
+  WebServerTG:
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      TargetType: instance
+      UnhealthyThresholdCount: 3
+      HealthyThresholdCount: 2
+      VpcId: !Ref MyVPC
+
+
+  ContactDNSName:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: !Ref HostedId
+      RecordSets:
+        - Name: !Ref ContactDomainName
+          Type: A
+          AliasTarget:
+            HostedZoneId: !GetAtt ApplicationLoadBalancer.CanonicalHostedZoneID 
+            DNSName: !GetAtt ApplicationLoadBalancer.DNSName
+
+
+Outputs:
+  WebsiteURL:
+    Value: !Sub 
+      - http://${Address}
+      - Address: !Ref ContactDomainName
+    Description: Contact List Application Load Balancer URL
